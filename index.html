@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>BJT Calculator</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔢 BJT Mode Calculator</h1>
+        <label for="mode">Select Mode:</label>
+        <select id="mode">
+            <option value="1">
+                Mode 1: IB = (VCC - 0.7) / [(β + 1) * RC + RB]
+            </option>
+            <option value="2">Mode 2: IB = (VCC - 0.7) / RB</option>
+            <option value="3">Mode 3: With RE</option>
+            <option value="4">Mode 4: Divider Bias + RE</option>
+            <option value="5">Mode 5: Denominator includes RC and RE</option>
+        </select>
+
+        <div id="inputs">
+            <!-- Inputs will be injected here -->
+        </div>
+
+        <button onclick="calculate()">Calculate</button>
+        <pre id="results"></pre>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
