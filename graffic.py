@@ -80,26 +80,24 @@ def animate_mode_label(text):
 
 def update_entry_visibility():
     mode = selected_mode.get()
-    for entry in [rb_entry, rb1_entry, rb2_entry, re_entry]:
-        entry.master.pack_forget()
+    for frame in input_frames.values():
+        frame.pack_forget()
+
+    input_frames["beta"].pack(pady=5)
+    input_frames["vcc"].pack(pady=5)
+    input_frames["rc"].pack(pady=5)
+
     if mode in ["mode1", "mode2", "mode3", "mode5"]:
-        rb_entry.master.pack(pady=5)
+        input_frames["rb"].pack(pady=5)
     if mode in ["mode3", "mode4", "mode5"]:
-        re_entry.master.pack(pady=5)
+        input_frames["re"].pack(pady=5)
     if mode == "mode4":
-        rb1_entry.master.pack(pady=5)
-        rb2_entry.master.pack(pady=5)
+        input_frames["rb1"].pack(pady=5)
+        input_frames["rb2"].pack(pady=5)
 
-def export_results():
-    if not result_text.get():
-        messagebox.showinfo("Export", "No results to export.")
-        return
-    file_path = filedialog.asksaveasfilename(defaultextension=".txt")
-    if file_path:
-        with open(file_path, "w") as f:
-            f.write(result_text.get())
-        messagebox.showinfo("Export", "Results saved successfully.")
+    calc_btn.pack(pady=10)
 
+        
 def plot_waveform():
     mode = selected_mode.get()
     try:
@@ -129,23 +127,17 @@ def plot_waveform():
             messagebox.showinfo("Plot", "Please select a valid mode.")
             return
 
-        t = [x for x in range(10)]
-        ic_wave = [ic * (0.8 + 0.2 * (x % 2)) for x in t]  # small fluctuation
-        vce_wave = [vce * (0.8 + 0.2 * ((x+1) % 2)) for x in t]
+        vce_range = [vce - 1 + i * 0.2 for i in range(11)]  # 11 dots in [VCE-1, VCE+1]
+        ic_values = [ic + 0.01 * (v - vce) for v in vce_range]  # line
 
-        plt.figure(figsize=(7, 4))
-        plt.plot(t, ic_wave, label="IC (A)", color="blue")
-        plt.plot(t, vce_wave, label="VCE (V)", color="red")
-
-        # Q-point
-        plt.scatter([5], [ic], label="Q-point IC", color="navy", zorder=5)
-        plt.scatter([5], [vce], label="Q-point VCE", color="darkred", zorder=5)
-
-        plt.xlabel("Time (a.u.)")
-        plt.ylabel("Amplitude")
-        plt.title("IC & VCE Waveforms with Q-point")
-        plt.legend()
+        plt.figure(figsize=(6, 4))
+        plt.plot(vce_range, ic_values, label="IC vs VCE", color="blue")
+        plt.scatter([vce], [ic], color="red", label="Q-point")
+        plt.title("Linear Output Characteristics (IC vs VCE)")
+        plt.xlabel("VCE (V)")
+        plt.ylabel("IC (A)")
         plt.grid(True)
+        plt.legend()
         plt.tight_layout()
         plt.show()
 
@@ -190,7 +182,7 @@ def handle_calculation():
             re = float(re_entry.get())
             ib, ic, ie, vce, rth, vth = bjt_mode4(beta, vcc, rc, rb1, rb2, re)
             if vce > 0.2:
-                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V\nRth = {rth:.6f} Ω\nVth = {vth:.6f} V")
+                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V\nRth = {rth:.6f} KΩ\nVth = {vth:.6f} V")
             else:
                 ib, ic, ie = saturation_mode4(vcc, rc, rth, vth, re)
                 result_text.set(f"Saturation Mode:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A")
@@ -214,14 +206,13 @@ def show_guide():
         "1. Click 'Select Mode' to choose from 5 BJT operating modes.\n"
         "2. Enter the appropriate values depending on mode.\n"
         "3. Click 'Calculate' to compute IB, IC, IE, and VCE.\n"
-        "4. Use buttons to export results or view waveforms.\n\n"
         "Note: Values must be in consistent units and valid numbers."
     )
     messagebox.showinfo("User Guide", guide_text)
 
 def main_gui():
     global beta_entry, vcc_entry, rc_entry, rb_entry, rb1_entry, rb2_entry, re_entry
-    global result_text, selected_mode, mode_label
+    global result_text, selected_mode, mode_label, calc_btn, input_frames
 
     root = tk.Tk()
     root.title("BJT Circuit Simulator")
@@ -229,13 +220,14 @@ def main_gui():
     root.configure(bg=BG_COLOR)
 
     selected_mode = tk.StringVar()
+    input_frames = {}
 
     tk.Label(root, text="BJT DC Analysis Tool", bg=BG_COLOR, fg=DARK_BROWN, font=("Arial", 20, "bold")).pack(pady=15)
 
     button_frame = tk.Frame(root, bg=BG_COLOR)
     button_frame.pack(pady=10)
 
-    for text, cmd in [("Select Mode", select_mode), ("Guide", show_guide), ("Export", export_results), ("Plot", plot_waveform)]:
+    for text, cmd in [("Select Mode", select_mode), ("Guide", show_guide), ("Plot", plot_waveform)]:
         btn = tk.Button(button_frame, text=text, command=cmd, bg=BUTTON_COLOR, fg=FG_COLOR, font=FONT_BUTTON, relief="flat", width=12)
         btn.pack(side="left", padx=5)
         btn.bind("<Enter>", on_enter)
@@ -246,36 +238,34 @@ def main_gui():
 
     tk.Label(root, text="Enter Parameters:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE).pack(pady=10)
 
-    def create_labeled_entry(label_text):
+    def create_labeled_entry(label_text, key):
         frame = tk.Frame(root, bg=BG_COLOR)
-        frame.pack(pady=10)
         tk.Label(frame, text=label_text, bg=BG_COLOR, fg=BLACK, font=FONT_LABEL, width=12, anchor="w").pack(side="left")
         entry = tk.Entry(frame, font=FONT_LABEL, width=15)
         entry.pack(side="left")
+        input_frames[key] = frame
         return entry
 
-    beta_entry = create_labeled_entry("β (Beta):")
-    vcc_entry = create_labeled_entry("VCC (V):")
-    rc_entry = create_labeled_entry("RC (Ω):")
-    rb_entry = create_labeled_entry("RB (Ω):")
-    re_entry = create_labeled_entry("RE (Ω):")
-    rb1_entry = create_labeled_entry("RB1 (Ω):")
-    rb2_entry = create_labeled_entry("RB2 (Ω):")
+    beta_entry = create_labeled_entry("β (Beta):", "beta")
+    vcc_entry = create_labeled_entry("VCC (V):", "vcc")
+    rc_entry = create_labeled_entry("RC (KΩ):", "rc")
+    rb_entry = create_labeled_entry("RB (KΩ):", "rb")
+    re_entry = create_labeled_entry("RE (KΩ):", "re")
+    rb1_entry = create_labeled_entry("RB1 (KΩ):", "rb1")
+    rb2_entry = create_labeled_entry("RB2 (KΩ):", "rb2")
 
-    btn_frame = tk.Frame(root, bg=BG_COLOR)
-    btn_frame.pack(fill='x', pady=10)
-
-    calc_btn = tk.Button(btn_frame, text="Calculate", command=handle_calculation,
-                        bg=BUTTON_COLOR, fg=FG_COLOR, font=("Arial", 14, "bold"), relief="flat", width=20)
+    # It is shown , when a mode is selected
+    calc_btn = tk.Button(root, text="Calculate", command=handle_calculation,
+                        bg=BUTTON_COLOR, fg=FG_COLOR, font=("Arial", 14, "bold"),
+                        relief="flat", width=20)
     calc_btn.bind("<Enter>", on_enter)
     calc_btn.bind("<Leave>", on_leave)
-    calc_btn.pack(side='right', padx=40)
 
     result_text = tk.StringVar()
     result_label = tk.Label(root, textvariable=result_text, bg=BG_COLOR, fg=BLACK, font=FONT_LABEL, justify="left")
-    result_label.pack(side='right', padx=10)
+    result_label.pack(pady=20)
 
     root.mainloop()
-
+    
 if __name__ == "__main__":
     main_gui()
