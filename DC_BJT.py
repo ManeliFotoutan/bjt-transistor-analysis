@@ -78,7 +78,7 @@ def display_results(ib, ic, ie, vce, rth=None, vth=None):
     print(f"IE  = {ie:.6f} A")
     print(f"VCE = {vce:.6f} V")
     if rth is not None and vth is not None:
-        print(f"Rth = {rth:.2f} Ohm")
+        print(f"Rth = {rth:.2f} KOhm")
         print(f"Vth = {vth:.2f} V")
 
 def display_saturation(ib, ic, ie):
@@ -175,7 +175,7 @@ def main():
         print(f"VCE = {vce:.6f} V")
 
         if mode == "4" and region == "Active":
-            print(f"Rth = {rth:.2f} Ohm")
+            print(f"Rth = {rth:.2f} KOhm")
             print(f"Vth = {vth:.2f} V")
 
     except ValueError:

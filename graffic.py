@@ -38,7 +38,7 @@ def select_mode():
 
     mode_window = tk.Toplevel()
     mode_window.title("Select Mode")
-    mode_window.geometry("600x400")
+    mode_window.geometry("900x700") 
     mode_window.configure(bg=BG_COLOR)
 
     tk.Label(mode_window, text="Choose BJT Mode:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE).pack(pady=10)
@@ -48,22 +48,24 @@ def select_mode():
 
     for i, img_path in enumerate(image_paths):
         try:
-            img = Image.open(img_path).resize((200, 200))
+            img = Image.open(img_path).resize((160, 160))
             img_tk = ImageTk.PhotoImage(img)
             lbl = tk.Label(frame, image=img_tk, bg=BG_COLOR)
             lbl.image = img_tk
-            lbl.grid(row=0, column=i, padx=10)
+            row = i // 2
+            col = i % 2
+            lbl.grid(row=row * 2, column=col, padx=20, pady=10)
 
             rb = tk.Radiobutton(
                 frame,
-                text=f"Mode {i+1}",
+                text=f"Mode {i + 1}",
                 variable=selected_mode,
-                value=f"mode{i+1}",
+                value=f"mode{i + 1}",
                 bg=BG_COLOR,
                 fg=BLACK,
-                command=lambda m=f"mode{i+1}": handle_selection(m)
+                command=lambda m=f"mode{i + 1}": handle_selection(m)
             )
-            rb.grid(row=1, column=i)
+            rb.grid(row=row * 2 + 1, column=col, pady=(0, 15))
         except FileNotFoundError:
             continue
 
@@ -96,7 +98,6 @@ def update_entry_visibility():
         input_frames["rb1"].pack(pady=5)
         input_frames["rb2"].pack(pady=5)
 
-    # دکمه Calculate
     calc_btn.pack(pady=10)
 
         
@@ -159,43 +160,43 @@ def handle_calculation():
         if mode == "mode1":
             ib, ic, ie, vce = bjt_mode1(beta, vcc, rc, rb)
             if vce > 0.2:
-                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
+                result_text.set(f"Active Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
             else:
                 ib, ic, ie = saturation_mode1(vcc, rc, rb)
-                result_text.set(f"Saturation Mode:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A")
+                result_text.set(f"Saturation Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = 0.2 V")
         elif mode == "mode2":
             ib, ic, ie, vce = bjt_mode2(beta, vcc, rc, rb)
             if vce > 0.2:
-                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
+                result_text.set(f"Active Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
             else:
                 ib, ic, ie = saturation_mode2(vcc, rc, rb)
-                result_text.set(f"Saturation Mode:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A")
+                result_text.set(f"Saturation Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = 0.2 V")
         elif mode == "mode3":
             re = float(re_entry.get())
             ib, ic, ie, vce = bjt_mode3(beta, vcc, rc, rb, re)
             if vce > 0.2:
-                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
+                result_text.set(f"Active Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
             else:
                 ib, ic, ie = saturation_mode3(vcc, rc, rb, re)
-                result_text.set(f"Saturation Mode:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A")
+                result_text.set(f"Saturation Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = 0.2 V")
         elif mode == "mode4":
             rb1 = float(rb1_entry.get())
             rb2 = float(rb2_entry.get())
             re = float(re_entry.get())
             ib, ic, ie, vce, rth, vth = bjt_mode4(beta, vcc, rc, rb1, rb2, re)
             if vce > 0.2:
-                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V\nRth = {rth:.6f} KΩ\nVth = {vth:.6f} V")
+                result_text.set(f"Active Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V\nRth = {rth:.6f} KΩ\nVth = {vth:.6f} V")
             else:
                 ib, ic, ie = saturation_mode4(vcc, rc, rth, vth, re)
-                result_text.set(f"Saturation Mode:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A")
+                result_text.set(f"Saturation Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = 0.2 V")
         elif mode == "mode5":
             re = float(re_entry.get())
             ib, ic, ie, vce = bjt_mode5(beta, vcc, rc, rb, re)
             if vce > 0.2:
-                result_text.set(f"IB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
+                result_text.set(f"Active Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = {vce:.6f} V")
             else:
                 ib, ic, ie = saturation_mode5(vcc, rc, rb, re)
-                result_text.set(f"Saturation Mode:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A")
+                result_text.set(f"Saturation Region:\nIB = {ib:.6f} A\nIC = {ic:.6f} A\nIE = {ie:.6f} A\nVCE = 0.2 V")
 
     except ValueError:
         messagebox.showerror("Invalid input", "Please enter valid numerical values.")
@@ -214,7 +215,7 @@ def show_guide():
 
 def main_gui():
     global beta_entry, vcc_entry, rc_entry, rb_entry, rb1_entry, rb2_entry, re_entry
-    global result_text, selected_mode, mode_label, calc_btn, input_frames , param_title_lable
+    global result_text, selected_mode, mode_label, calc_btn, input_frames , param_title_label
 
     root = tk.Tk()
     root.title("BJT Circuit Simulator")
@@ -238,7 +239,7 @@ def main_gui():
     mode_label = tk.Label(root, text="", bg=BG_COLOR, fg=BG_COLOR, font=("Arial", 12, "bold"))
     mode_label.pack(pady=5)
 
-    param_title_lable =  tk.Label(root, text="Enter Parameters:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE)
+    param_title_label =  tk.Label(root, text="Enter Parameters:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE)
 
     def create_labeled_entry(label_text, key):
         frame = tk.Frame(root, bg=BG_COLOR)
