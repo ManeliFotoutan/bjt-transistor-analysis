@@ -29,9 +29,15 @@ def on_enter(e):
 def on_leave(e):
     e.widget.config(bg=BUTTON_COLOR)
 
+def clear_inputs_and_results():
+    for entry in [beta_entry, vcc_entry, rc_entry, rb_entry, rb1_entry, rb2_entry, re_entry]:
+        entry.delete(0, tk.END)
+    result_text.set("")
+
 def select_mode():
     def handle_selection(mode):
         selected_mode.set(mode)
+        clear_inputs_and_results()
         animate_mode_label(f"\u25CF {mode.upper()} selected")
         update_entry_visibility()
         mode_window.destroy()
