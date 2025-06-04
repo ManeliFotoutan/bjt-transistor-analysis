@@ -103,67 +103,80 @@ def main():
         vcc = float(input("🔋 Enter VCC (volts): "))
         rc = float(input("🟫 Enter RC (kohms): "))
 
+        vce, ib, ic, ie = None, None, None, None
+        region = ""
+
         if mode == "1":
             rb = float(input("🟫 Enter RB (kohms): "))
-            ib, ic, ie, vce = bjt_mode1(beta, vcc, rc, rb)
-            if vce > 0.2:
-                display_results(ib, ic, ie, vce)
+            ib_a, ic_a, ie_a, vce_a = bjt_mode1(beta, vcc, rc, rb)
+            if vce_a > 0.2:
+                region = "Active"
+                vce, ib, ic, ie = vce_a, ib_a, ic_a, ie_a
             else:
-                print("⚠ The transistor is in the *Saturation Region*.")
-                print("🔁 Calculating saturation mode values...")
+                region = "Saturation"
                 ib, ic, ie = saturation_mode1(vcc, rc, rb)
-                display_saturation(ib, ic, ie)
+                vce = 0.2
 
         elif mode == "2":
             rb = float(input("🟫 Enter RB (kohms): "))
-            ib, ic, ie, vce = bjt_mode2(beta, vcc, rc, rb)
-            if vce > 0.2:
-                display_results(ib, ic, ie, vce)
+            ib_a, ic_a, ie_a, vce_a = bjt_mode2(beta, vcc, rc, rb)
+            if vce_a > 0.2:
+                region = "Active"
+                vce, ib, ic, ie = vce_a, ib_a, ic_a, ie_a
             else:
-                print("⚠ The transistor is in the *Saturation Region*.")
-                print("🔁 Calculating saturation mode values...")
+                region = "Saturation"
                 ib, ic, ie = saturation_mode2(vcc, rc, rb)
-                display_saturation(ib, ic, ie)
+                vce = 0.2
 
         elif mode == "3":
             rb = float(input("🟫 Enter RB (kohms): "))
             re = float(input("🟫 Enter RE (kohms): "))
-            ib, ic, ie, vce = bjt_mode3(beta, vcc, rc, rb, re)
-            if vce > 0.2:
-                display_results(ib, ic, ie, vce)
+            ib_a, ic_a, ie_a, vce_a = bjt_mode3(beta, vcc, rc, rb, re)
+            if vce_a > 0.2:
+                region = "Active"
+                vce, ib, ic, ie = vce_a, ib_a, ic_a, ie_a
             else:
-                print("⚠ The transistor is in the *Saturation Region*.")
-                print("🔁 Calculating saturation mode values...")
+                region = "Saturation"
                 ib, ic, ie = saturation_mode3(vcc, rc, rb, re)
-                display_saturation(ib, ic, ie)
+                vce = 0.2
 
         elif mode == "4":
             rb1 = float(input("🟫 Enter RB1 (kohms): "))
             rb2 = float(input("🟫 Enter RB2 (kohms): "))
             re = float(input("🟫 Enter RE (kohms): "))
-            ib, ic, ie, vce, rth, vth = bjt_mode4(beta, vcc, rc, rb1, rb2, re)
-            if vce > 0.2:
-                display_results(ib, ic, ie, vce, rth, vth)
+            ib_a, ic_a, ie_a, vce_a, rth, vth = bjt_mode4(beta, vcc, rc, rb1, rb2, re)
+            if vce_a > 0.2:
+                region = "Active"
+                vce, ib, ic, ie = vce_a, ib_a, ic_a, ie_a
             else:
-                print("⚠ The transistor is in the *Saturation Region*.")
-                print("🔁 Calculating saturation mode values...")
+                region = "Saturation"
                 ib, ic, ie = saturation_mode4(vcc, rc, rth, vth, re)
-                display_saturation(ib, ic, ie)
+                vce = 0.2
 
         elif mode == "5":
             rb = float(input("🟫 Enter RB (kohms): "))
             re = float(input("🟫 Enter RE (kohms): "))
-            ib, ic, ie, vce = bjt_mode5(beta, vcc, rc, rb, re)
-            if vce > 0.2:
-                display_results(ib, ic, ie, vce)
+            ib_a, ic_a, ie_a, vce_a = bjt_mode5(beta, vcc, rc, rb, re)
+            if vce_a > 0.2:
+                region = "Active"
+                vce, ib, ic, ie = vce_a, ib_a, ic_a, ie_a
             else:
-                print("⚠ The transistor is in the *Saturation Region*.")
-                print("🔁 Calculating saturation mode values...")
+                region = "Saturation"
                 ib, ic, ie = saturation_mode5(vcc, rc, rb, re)
-                display_saturation(ib, ic, ie)
-
+                vce = 0.2
         else:
             print("❌ Invalid mode. Please enter a number between 1 and 5.")
+            return
+
+        print(f"\n📊 Region: {region}")
+        print(f"IB  = {ib:.6f} A")
+        print(f"IC  = {ic:.6f} A")
+        print(f"IE  = {ie:.6f} A")
+        print(f"VCE = {vce:.6f} V")
+
+        if mode == "4" and region == "Active":
+            print(f"Rth = {rth:.2f} Ohm")
+            print(f"Vth = {vth:.2f} V")
 
     except ValueError:
         print("⚠ Error: Please enter numeric values only.")
