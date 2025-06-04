@@ -48,7 +48,7 @@ def select_mode():
 
     for i, img_path in enumerate(image_paths):
         try:
-            img = Image.open(img_path).resize((100, 100))
+            img = Image.open(img_path).resize((200, 200))
             img_tk = ImageTk.PhotoImage(img)
             lbl = tk.Label(frame, image=img_tk, bg=BG_COLOR)
             lbl.image = img_tk
@@ -80,6 +80,7 @@ def animate_mode_label(text):
 
 def update_entry_visibility():
     mode = selected_mode.get()
+    param_title_label.pack(pady=10)
     for frame in input_frames.values():
         frame.pack_forget()
 
@@ -95,6 +96,7 @@ def update_entry_visibility():
         input_frames["rb1"].pack(pady=5)
         input_frames["rb2"].pack(pady=5)
 
+    # دکمه Calculate
     calc_btn.pack(pady=10)
 
         
@@ -212,7 +214,7 @@ def show_guide():
 
 def main_gui():
     global beta_entry, vcc_entry, rc_entry, rb_entry, rb1_entry, rb2_entry, re_entry
-    global result_text, selected_mode, mode_label, calc_btn, input_frames
+    global result_text, selected_mode, mode_label, calc_btn, input_frames , param_title_lable
 
     root = tk.Tk()
     root.title("BJT Circuit Simulator")
@@ -236,7 +238,7 @@ def main_gui():
     mode_label = tk.Label(root, text="", bg=BG_COLOR, fg=BG_COLOR, font=("Arial", 12, "bold"))
     mode_label.pack(pady=5)
 
-    tk.Label(root, text="Enter Parameters:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE).pack(pady=10)
+    param_title_lable =  tk.Label(root, text="Enter Parameters:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE)
 
     def create_labeled_entry(label_text, key):
         frame = tk.Frame(root, bg=BG_COLOR)
