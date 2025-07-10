@@ -120,44 +120,49 @@ def plot_waveform():
     try:
         beta = float(beta_entry.get())
         vcc = float(vcc_entry.get())
-        rc = float(rc_entry.get())
+        rc = float(rc_entry.get())  
 
         if mode in ["mode1", "mode2", "mode3", "mode5"]:
-            rb = float(rb_entry.get())
+            rb = float(rb_entry.get())  
         if mode in ["mode3", "mode4", "mode5"]:
-            re = float(re_entry.get())
+            re = float(re_entry.get()) 
         if mode == "mode4":
-            rb1 = float(rb1_entry.get())
-            rb2 = float(rb2_entry.get())
+            rb1 = float(rb1_entry.get()) 
+            rb2 = float(rb2_entry.get())  
 
         if mode == "mode1":
             ib, ic, ie, vce = bjt_mode1(beta, vcc, rc, rb)
+            ic_loadline_max = vcc / rc  # زمانی که VCE=0
+            vce_loadline_max = vcc           # زمانی که IC=0
         elif mode == "mode2":
             ib, ic, ie, vce = bjt_mode2(beta, vcc, rc, rb)
+            ic_loadline_max = vcc / rc
+            vce_loadline_max = vcc           
         elif mode == "mode3":
             ib, ic, ie, vce = bjt_mode3(beta, vcc, rc, rb, re)
+            ic_loadline_max = (vcc-ie*re)  / rc  # زمانی که VCE=0
+            vce_loadline_max = vcc-ie*re           # زمانی که IC=0
         elif mode == "mode4":
             ib, ic, ie, vce, rth, vth = bjt_mode4(beta, vcc, rc, rb1, rb2, re)
+            ic_loadline_max = (vcc-ie*re)  / rc  
+            vce_loadline_max = vcc-ie*re 
         elif mode == "mode5":
             ib, ic, ie, vce = bjt_mode5(beta, vcc, rc, rb, re)
+            ic_loadline_max = (vcc-ie*re)  / rc  
+            vce_loadline_max = vcc-ie*re 
         else:
             messagebox.showinfo("Plot", "Please select a valid mode.")
             return
 
-        # مقدار فرضی برای ولتاژ Early
-        VA = 100  # ولتاژ Early فرضی به ولت
-
-        # بازه‌ی گسترده‌تر برای VCE
-        vce_range = [i * 0.1 for i in range(int(vcc * 10))]  # از 0 تا VCC
-
-        # محاسبه IC بر اساس مدل واقعی‌تر Early effect
-        ic_values = [ic * (1 + (v - vce) / VA) for v in vce_range]
-
+        vce_line = [0, vce_loadline_max]
+        ic_line = [ic_loadline_max, 0]
 
         plt.figure(figsize=(6, 4))
-        plt.plot(vce_range, ic_values, label="IC vs VCE", color="blue")
+        plt.plot(vce_line, ic_line, label="Load Line", color="orange", linestyle='--')
+
         plt.scatter([vce], [ic], color="red", label="Q-point")
-        plt.title("Linear Output Characteristics (IC vs VCE)")
+
+        plt.title("Load Line and Q-point")
         plt.xlabel("VCE (V)")
         plt.ylabel("IC (A)")
         plt.grid(True)
