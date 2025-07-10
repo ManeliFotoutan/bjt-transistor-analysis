@@ -144,8 +144,15 @@ def plot_waveform():
             messagebox.showinfo("Plot", "Please select a valid mode.")
             return
 
-        vce_range = [vce - 1 + i * 0.2 for i in range(11)]  # 11 dots in [VCE-1, VCE+1]
-        ic_values = [ic + 0.01 * (v - vce) for v in vce_range]  # line
+        # مقدار فرضی برای ولتاژ Early
+        VA = 100  # ولتاژ Early فرضی به ولت
+
+        # بازه‌ی گسترده‌تر برای VCE
+        vce_range = [i * 0.1 for i in range(int(vcc * 10))]  # از 0 تا VCC
+
+        # محاسبه IC بر اساس مدل واقعی‌تر Early effect
+        ic_values = [ic * (1 + (v - vce) / VA) for v in vce_range]
+
 
         plt.figure(figsize=(6, 4))
         plt.plot(vce_range, ic_values, label="IC vs VCE", color="blue")
