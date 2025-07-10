@@ -9,6 +9,7 @@ from PIL import Image, ImageTk
 
 from DC_BJT import *
 
+# Color and font constants
 BG_COLOR = "#FFE4C4" 
 FG_COLOR = "#FFE4C4"
 BUTTON_COLOR = "#640f09" 
@@ -23,7 +24,8 @@ FONT_BUTTON = ("Arial", 12, "bold")
 
 image_paths = [f"./images/mode{i+1}.jpg" for i in range(5)] 
 
-def on_enter(e):
+# Button hover effect functions
+def on_enter(e): # mouse enters
     e.widget.config(bg=BUTTON_HOVER_COLOR)
 
 def on_leave(e):
@@ -44,7 +46,7 @@ def select_mode():
 
     mode_window = tk.Toplevel()
     mode_window.title("Select Mode")
-    mode_window.geometry("900x700") 
+    mode_window.geometry("900x1100") 
     mode_window.configure(bg=BG_COLOR)
 
     tk.Label(mode_window, text="Choose BJT Mode:", bg=BG_COLOR, fg=DARK_BROWN, font=FONT_TITLE).pack(pady=10)
@@ -52,9 +54,10 @@ def select_mode():
     frame = tk.Frame(mode_window, bg=BG_COLOR)
     frame.pack()
 
+    # Create mode selection interface with images
     for i, img_path in enumerate(image_paths):
         try:
-            img = Image.open(img_path).resize((160, 160))
+            img = Image.open(img_path).resize((290, 290))
             img_tk = ImageTk.PhotoImage(img)
             lbl = tk.Label(frame, image=img_tk, bg=BG_COLOR)
             lbl.image = img_tk
@@ -75,6 +78,7 @@ def select_mode():
         except FileNotFoundError:
             continue
 
+# Animate mode selection label with blinking effect
 def animate_mode_label(text):
     def animate():
         for i in range(3):
@@ -86,16 +90,19 @@ def animate_mode_label(text):
 
     threading.Thread(target=animate).start()
 
+# Show/hide input fields based on selected mode
 def update_entry_visibility():
     mode = selected_mode.get()
     param_title_label.pack(pady=10)
     for frame in input_frames.values():
         frame.pack_forget()
 
+    # Always show these basic parameters
     input_frames["beta"].pack(pady=5)
     input_frames["vcc"].pack(pady=5)
     input_frames["rc"].pack(pady=5)
 
+    # Show additional parameters based on mode
     if mode in ["mode1", "mode2", "mode3", "mode5"]:
         input_frames["rb"].pack(pady=5)
     if mode in ["mode3", "mode4", "mode5"]:
@@ -106,7 +113,8 @@ def update_entry_visibility():
 
     calc_btn.pack(pady=10)
 
-        
+
+# Plot IC vs VCE characteristics with Q-point 
 def plot_waveform():
     mode = selected_mode.get()
     try:
@@ -152,6 +160,7 @@ def plot_waveform():
 
     except Exception as e:
         messagebox.showerror("Plot Error", f"Check inputs or mode selection.\n\n{str(e)}")
+
 
 def handle_calculation():
     try:
